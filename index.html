@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Seating Arrangement</title>
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f4f4f4;
+        padding: 20px;
+    }
+    
+    /* Header Styling */
+    header {
+        width: 100%;
+        text-align: center;
+        padding: 20px;
+        background-color: #333;
+        color: white;
+    }
+    header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    header h2 {
+        font-size: 1.2rem;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+    header button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: #444;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .domain-section {
+        display: none;
+        width: 100%;
+        max-width: 600px;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e6e6e6;
+        border-radius: 8px;
+        border: 2px solid #333;
+    }
+    
+    /* Footer Styling */
+    footer {
+        width: 100%;
+        text-align: center;
+        padding: 20px;
+        margin-top: 40px;
+        background-color: #333;
+        color: white;
+    }
+    footer p, footer a {
+        color: #ddd;
+        font-size: 0.9rem;
+    }
+    footer a {
+        text-decoration: none;
+        color: #4db8ff;
+        margin: 0 10px;
+    }
+
+    .search-container, .container {
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .search-container input[type="text"] {
+        width: 70%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+    }
+    
+    .search-container button, .mirror-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: #333;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        max-width: 100%;
+    }
+
+    .cell {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(10, auto);
+        gap: 10px;
+        padding: 10px;
+        background-color: #e6e6e6;
+        border: 2px solid #333;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .team {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: bold;
+        color: #333;
+        background-color: #ddd;
+        border-radius: 4px;
+        position: relative;
+        transition: background-color 0.3s ease;
+    }
+
+    .team-101-133 { background-color: #ffb3b3; } /* Light red for 101-133 */
+    .team-201-232 { background-color: #b3ffb3; } /* Light green for 201-232 */
+
+    .team-ids {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .number-sequence {
+        display: flex;
+        gap: 5px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .team.highlight {
+        background-color: yellow; /* Highlight color for search results */
+    }
+    .domain-section {
+    display: none;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #333;
+}
+
+.domain-section h2 {
+    color: #333;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.domain-section input {
+    width: calc(50% - 10px);
+    padding: 10px;
+    margin-right: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.domain-section button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.domain-section button:hover {
+    background-color: #444;
+}
+
+#result {
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #333;
+    text-align: center;
+}
+
+header button,
+.search-container button,
+.mirror-button {
+    transition: background-color 0.3s;
+}
+
+header button:hover,
+.search-container button:hover,
+.mirror-button:hover {
+    background-color: #555;
+}
+
+.team {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team.highlight {
+    background-color: yellow; /* Highlight color for search results */
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+}
+
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <h1>Excel Mania 2k24</h1>
+    <h2>Department of Data Science</h2>
+    <button onclick="toggleDomainSection()">Domain</button>
+</header>
+
+<div class="domain-section" id="domainSection">
+    <!-- Content for Domain section will go here -->
+    <h2>Team Domain Finder</h2>
+    <input type="number" id="teamNumber" placeholder="Enter Team Number" required>
+    <input type="text" id="rollNumber" placeholder="Enter M1 or M2 Roll Number" required>
+    <button onclick="findDomain()">Find Domain</button>
+    <div id="result"></div>
+
+</div>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Enter team number (e.g., 101)">
+    <button onclick="searchTeam()">Search</button>
+</div>
+
+<div class="container" id="gridContainer">
+    <!-- Grid cells filled from bottom-right to top-left -->
+
+    <!-- Column 3, Rows from bottom to top -->
+    <div class="cell">
+        <!-- Teams arranged from bottom-right to top-left -->
+
+        <!-- Column 3, Rows from bottom to top -->
+        <div class="team team-101-133" data-team="101" data-team="102"><div class="team-ids">101 | 102</div><div class="number-sequence">1 2 3</div></div>
+        <div class="team team-101-133" data-team="103" data-team="104"><div class="team-ids">103 | 104</div><div class="number-sequence">4 5 6</div></div>
+        <div class="team team-101-133" data-team="105" data-team="106"><div class="team-ids">105 | 106</div><div class="number-sequence">7 8 9</div></div>
+        <div class="team team-101-133" data-team="107" data-team="108"><div class="team-ids">107 | 108</div><div class="number-sequence">10 11 12</div></div>
+        <div class="team team-101-133" data-team="109" data-team="110"><div class="team-ids">109 | 110</div><div class="number-sequence">13 14 15</div></div>
+        <div class="team team-101-133" data-team="111" data-team="112"><div class="team-ids">111 | 112</div><div class="number-sequence">16 17 18</div></div>
+        <div class="team team-101-133" data-team="113" data-team="114"><div class="team-ids">113 | 114</div><div class="number-sequence">19 20 21</div></div>
+        <div class="team team-101-133" data-team="115" data-team="116"><div class="team-ids">115 | 116</div><div class="number-sequence">22 23 24</div></div>
+        <div class="team team-101-133" data-team="117" data-team="118"><div class="team-ids">117 | 118</div><div class="number-sequence">25 26 27</div></div>
+        <div class="team team-101-133" data-team="119" data-team="120"><div class="team-ids">119 | 120</div><div class="number-sequence">28 29 30</div></div>
+
+        <!-- Column 2, Rows from bottom to top -->
+        <div class="team team-101-133" data-team="121" data-team="122"><div class="team-ids">121 | 122</div><div class="number-sequence">31 32 33</div></div>
+        <div class="team team-101-133" data-team="123" data-team="124"><div class="team-ids">123 | 124</div><div class="number-sequence">34 35 36</div></div>
+        <div class="team team-101-133" data-team="125" data-team="126"><div class="team-ids">125 | 126</div><div class="number-sequence">37 38 39</div></div>
+        <div class="team team-101-133" data-team="127" data-team="128"><div class="team-ids">127 | 128</div><div class="number-sequence">40 41 42</div></div>
+        <div class="team team-101-133" data-team="129" data-team="130"><div class="team-ids">129 | 130</div><div class="number-sequence">43 44 45</div></div>
+        <div class="team team-101-133" data-team="131" data-team="132"><div class="team-ids">131 | 132</div><div class="number-sequence">46 47 48</div></div>
+        <div class="team team-201-232" data-team="133" data-team="201"><div class="team-ids">133 | 201</div><div class="number-sequence">49 50 51</div></div>
+        <div class="team team-201-232" data-team="202" data-team="203"><div class="team-ids">202 | 203</div><div class="number-sequence">52 53 54</div></div>
+        <div class="team team-201-232" data-team="204" data-team="205"><div class="team-ids">204 | 205</div><div class="number-sequence">55 56 57</div></div>
+        <div class="team team-201-232" data-team="206" data-team="207"><div class="team-ids">206 | 207</div><div class="number-sequence">58 59 60</div></div>
+
+        <!-- Column 1, Rows from bottom to top -->
+        <div class="team team-201-232" data-team="208" data-team="209"><div class="team-ids">208 | 209</div><div class="number-sequence">61 62 63</div></div>
+        <div class="team team-201-232" data-team="210" data-team="211"><div class="team-ids">210 | 211</div><div class="number-sequence">64 65 66</div></div>
+        <div class="team team-201-232" data-team="212" data-team="213"><div class="team-ids">212 | 213</div><div class="number-sequence">67 68 69</div></div>
+        <div class="team team-201-232" data-team="214" data-team="215"><div class="team-ids">214 | 215</div><div class="number-sequence">70 71 72</div></div>
+        <div class="team team-201-232" data-team="216" data-team="217"><div class="team-ids">216 | 217</div><div class="number-sequence">73 74 75</div></div>
+        <div class="team team-201-232" data-team="218" data-team="219"><div class="team-ids">218 | 219</div><div class="number-sequence">76 77 78</div></div>
+        <div class="team team-201-232" data-team="220" data-team="221"><div class="team-ids">220 | 221</div><div class="number-sequence">79 80 81</div></div>
+        <div class="team team-201-232" data-team="222" data-team="223"><div class="team-ids">222 | 223</div><div class="number-sequence">82 83 84</div></div>
+        <div class="team team-201-232" data-team="224" data-team="225"><div class="team-ids">224 | 225</div><div class="number-sequence">85 86 87</div></div>
+        <div class="team team-201-232" data-team="226" data-team="227"><div class="team-ids">226 | 227</div><div class="number-sequence">88 89 90</div></div>
+    </div>
+</div>
+
+
+<button class="mirror-button" onclick="mirrorGrid()">Mirror View</button>
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2024 Mr. G. Gourav Kumar, President, Data Analytics Club</p>
+    <p>Contact:</p>
+    <p><a href="https://www.instagram.com/au_dac?igsh=Y2NvODhlMzc2dGEx" target="_blank">Instagram</a> | <a href="https://chat.whatsapp.com/BDNpotd4gSRHbWrDYI3YNY" target="_blank">WhatsApp</a></p>
+</footer>
+
+<script>
+    // Toggle Domain section visibility
+    function toggleDomainSection() {
+        const domainSection = document.getElementById("domainSection");
+        domainSection.style.display = domainSection.style.display === "none" || domainSection.style.display === "" ? "block" : "none";
+    }
+
+    // Search functionality
+    function searchTeam() {
+    const searchInput = document.getElementById("searchInput").value;
+    const teams = document.querySelectorAll(".team");
+
+    // Clear previous highlights
+    teams.forEach(team => team.classList.remove("highlight"));
+
+    // Highlight matching team
+    teams.forEach(team => {
+        if (team.getAttribute("data-team") === searchInput) {
+            team.classList.add("highlight");
+        }
+    });
+}
+
+    // Mirror view functionality
+    function mirrorGrid() {
+        const gridContainer = document.getElementById("gridContainer");
+        gridContainer.classList.toggle("mirrored");
+    }
+    
+    const teamData = [
+ {
+  "Team No.": 101,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110BO4",
+  "M2 R. No.": "24EG110B36"
+ },
+ {
+  "Team No.": 102,
+  "Domain": "Production",
+  "M1 R. No.": "24EG110A60",
+  "M2 R. No.": "24EG110A41"
+ },
+ {
+  "Team No.": 103,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110C33",
+  "M2 R. No.": "24EG110C45"
+ },
+ {
+  "Team No.": 104,
+  "Domain": "Employee Progress",
+  "M1 R. No.": "24EG110A31",
+  "M2 R. No.": "24EG110A02"
+ },
+ {
+  "Team No.": 106,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG110A05",
+  "M2 R. No.": "24EG110A58"
+ },
+ {
+  "Team No.": 107,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A51",
+  "M2 R. No.": "24EG110A53"
+ },
+ {
+  "Team No.": 108,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110C25",
+  "M2 R. No.": "24EG110C15"
+ },
+ {
+  "Team No.": 109,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A20",
+  "M2 R. No.": "24EG110A21"
+ },
+ {
+  "Team No.": 110,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110A44",
+  "M2 R. No.": "24EG110A52"
+ },
+ {
+  "Team No.": 111,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A42",
+  "M2 R. No.": "24EG110A40"
+ },
+ {
+  "Team No.": 112,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A14",
+  "M2 R. No.": "24EG110B03"
+ },
+ {
+  "Team No.": 113,
+  "Domain": "Sentimental Analysis",
+  "M1 R. No.": "24EG110A27",
+  "M2 R. No.": "24EG110A13"
+ },
+ {
+  "Team No.": 114,
+  "Domain": "Sentimental Analysis",
+  "M1 R. No.": "24EG110A38",
+  "M2 R. No.": "24EG110A46"
+ },
+ {
+  "Team No.": 115,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110A39",
+  "M2 R. No.": "24EG110A12"
+ },
+ {
+  "Team No.": 116,
+  "Domain": "Agriculture",
+  "M1 R. No.": "24EG110A11",
+  "M2 R. No.": "24EG110A10"
+ },
+ {
+  "Team No.": 117,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG110A34",
+  "M2 R. No.": "24EG110A24"
+ },
+ {
+  "Team No.": 118,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A62",
+  "M2 R. No.": "24EG110A36"
+ },
+ {
+  "Team No.": 119,
+  "Domain": "Sentimental Analysis",
+  "M1 R. No.": "24EG110C39",
+  "M2 R. No.": "24EG110C38"
+ },
+ {
+  "Team No.": 120,
+  "Domain": "Production",
+  "M1 R. No.": "24EG110A37",
+  "M2 R. No.": "24EG110A50"
+ },
+ {
+  "Team No.": 121,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A63",
+  "M2 R. No.": "24EG110A23"
+ },
+ {
+  "Team No.": 122,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110D25",
+  "M2 R. No.": "24EG110D55"
+ },
+ {
+  "Team No.": 123,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110C66",
+  "M2 R. No.": "24EG110C63"
+ },
+ {
+  "Team No.": 124,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG110C60",
+  "M2 R. No.": "24EG110C19"
+ },
+ {
+  "Team No.": 125,
+  "Domain": "Production",
+  "M1 R. No.": "24EG110A29",
+  "M2 R. No.": "24EG110A48"
+ },
+ {
+  "Team No.": 126,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG107B15",
+  "M2 R. No.": "24EG107B40"
+ },
+ {
+  "Team No.": 127,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110D11",
+  "M2 R. No.": "24EG110D57"
+ },
+ {
+  "Team No.": 128,
+  "Domain": "Production",
+  "M1 R. No.": "24EG110D42",
+  "M2 R. No.": "24EG110D45"
+ },
+ {
+  "Team No.": 129,
+  "Domain": "Agriculture",
+  "M1 R. No.": "24EG107C57",
+  "M2 R. No.": "24EG107C44"
+ },
+ {
+  "Team No.": 130,
+  "Domain": "Agriculture",
+  "M1 R. No.": "24EG110C24",
+  "M2 R. No.": "24EG110C07"
+ },
+ {
+  "Team No.": 131,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG107B14",
+  "M2 R. No.": "24EG107B26"
+ },
+ {
+  "Team No.": 132,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG107B33",
+  "M2 R. No.": "24EG107B06"
+ },
+ {
+  "Team No.": 133,
+  "Domain": "Sentimental Analysis",
+  "M1 R. No.": "24EG110C44",
+  "M2 R. No.": "24EG110C41"
+ },
+ {
+  "Team No.": 201,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG107B59",
+  "M2 R. No.": "24EG107B01"
+ },
+ {
+  "Team No.": 202,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110B32",
+  "M2 R. No.": "24EG110B15"
+ },
+ {
+  "Team No.": 203,
+  "Domain": "Employee Progress",
+  "M1 R. No.": "24EG110B14",
+  "M2 R. No.": "24EG110B63"
+ },
+ {
+  "Team No.": 204,
+  "Domain": "Employee Progress",
+  "M1 R. No.": "24EG110A32",
+  "M2 R. No.": "24EG110A57"
+ },
+ {
+  "Team No.": 205,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110C32",
+  "M2 R. No.": "24EG110C03"
+ },
+ {
+  "Team No.": 206,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG107A57",
+  "M2 R. No.": "24EG110A28"
+ },
+ {
+  "Team No.": 207,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A16 ",
+  "M2 R. No.": "24EG110A56"
+ },
+ {
+  "Team No.": 208,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110A06",
+  "M2 R. No.": "24EG110A45"
+ },
+ {
+  "Team No.": 209,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG110A15",
+  "M2 R. No.": "24EG110A18"
+ },
+ {
+  "Team No.": 210,
+  "Domain": "Agriculture",
+  "M1 R. No.": "24EG110A09",
+  "M2 R. No.": "24EG110A55"
+ },
+ {
+  "Team No.": 211,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG110A19",
+  "M2 R. No.": "24EG110A26"
+ },
+ {
+  "Team No.": 212,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A25",
+  "M2 R. No.": "24EG110A61"
+ },
+ {
+  "Team No.": 213,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110A64",
+  "M2 R. No.": "24EG110A65"
+ },
+ {
+  "Team No.": 214,
+  "Domain": "Sentimental Analysis",
+  "M1 R. No.": "24EG110A04",
+  "M2 R. No.": "24EG110A03"
+ },
+ {
+  "Team No.": 215,
+  "Domain": "Production",
+  "M1 R. No.": "24EG110A22",
+  "M2 R. No.": "24EG110A43"
+ },
+ {
+  "Team No.": 216,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A24",
+  "M2 R. No.": "24EG110A34"
+ },
+ {
+  "Team No.": 217,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110A01",
+  "M2 R. No.": "24EG110A17"
+ },
+ {
+  "Team No.": 218,
+  "Domain": "Employee Progress",
+  "M1 R. No.": "24EG110A47",
+  "M2 R. No.": "24EG110A07"
+ },
+ {
+  "Team No.": 219,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110A33",
+  "M2 R. No.": "24EG110A35"
+ },
+ {
+  "Team No.": 220,
+  "Domain": "Sentimental Analysis",
+  "M1 R. No.": "24EG110D31",
+  "M2 R. No.": "24EG110D21"
+ },
+ {
+  "Team No.": 221,
+  "Domain": "Employee Progress",
+  "M1 R. No.": "24EG110A49",
+  "M2 R. No.": "24EG110A30"
+ },
+ {
+  "Team No.": 222,
+  "Domain": "Employee Progress",
+  "M1 R. No.": "24EG105A19",
+  "M2 R. No.": "24EG105A41"
+ },
+ {
+  "Team No.": 223,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110C30",
+  "M2 R. No.": "24EG110C09"
+ },
+ {
+  "Team No.": 224,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110C31",
+  "M2 R. No.": "24EG110C36"
+ },
+ {
+  "Team No.": 225,
+  "Domain": "Employee",
+  "M1 R. No.": "24EG110C59",
+  "M2 R. No.": "24EG110C65"
+ },
+ {
+  "Team No.": 226,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110B48",
+  "M2 R. No.": "24EG110B58"
+ },
+ {
+  "Team No.": 227,
+  "Domain": "Medical",
+  "M1 R. No.": "24EG107G24",
+  "M2 R. No.": "24EG107G28"
+ },
+ {
+  "Team No.": 228,
+  "Domain": "Production",
+  "M1 R. No.": "24EG107C13"
+ },
+ {
+  "Team No.": 229,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG110B45",
+  "M2 R. No.": "24EG110B16"
+ },
+ {
+  "Team No.": 230,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG107B05",
+  "M2 R. No.": "24EG107B39"
+ },
+ {
+  "Team No.": 231,
+  "Domain": "Agriculture",
+  "M1 R. No.": "24EG107C09",
+  "M2 R. No.": "24EG107H13"
+ },
+ {
+  "Team No.": 232,
+  "Domain": "Sales",
+  "M1 R. No.": "24EG107B51",
+  "M2 R. No.": "24EG107B47"
+ }
+];
+
+    // Mapping of each domain to its respective download link
+    const domainLinks = {
+      "Production": "https://docs.google.com/spreadsheets/d/1-FqD0L9LIiM-bA-l-mvXJmM_fCcQueg-/export?format=xlsx",
+      "Sentimental Analysis": "https://docs.google.com/spreadsheets/d/1-MYBagMxCrbYQ7rU2OVptiE_uTvqm3Se/export?format=xlsx",
+      "Medical": "https://docs.google.com/spreadsheets/d/10MRIggfYfBhMlBjwec_qlUpLZvJYcTGh/export?format=xlsx",
+      "Sales": "https://docs.google.com/spreadsheets/d/1-O4_t5M340Zo0lZCBaXFnOX3O-ZGBDqZ/export?format=xlsx",
+      "Financial": "https://docs.google.com/spreadsheets/d/1-GEoaYATz2XtBzxh8q-3tP4Ju30HL2EM/export?format=xlsx",
+      "Agriculture": "https://docs.google.com/spreadsheets/d/1Ghzo7TJKyz-rcPDUdyLtxBQ9fBgZ5eUy/export?format=xlsx"
+    };
+
+    function findDomain() {
+      const teamNumber = parseInt(document.getElementById("teamNumber").value, 10);
+      const rollNumber = document.getElementById("rollNumber").value.trim().toUpperCase();
+      const resultDiv = document.getElementById("result");
+
+      // Clear previous results
+      resultDiv.textContent = "";
+
+      // Find matching team entry
+      const team = teamData.find(entry => 
+        entry["Team No."] === teamNumber && 
+        (entry["M1 R. No."] === rollNumber || entry["M2 R. No."] === rollNumber)
+      );
+
+      if (team) {
+        const domain = team["Domain"];
+        resultDiv.textContent = `Domain: ${domain}\nData Downloaded Successfully`;
+
+        // Automatically trigger download
+        const downloadLink = domainLinks[domain];
+        const a = document.createElement("a");
+        a.href = downloadLink;
+        a.download = `${domain}_Source.xlsx`; // Suggested download filename
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        resultDiv.textContent = "No matching team found. Please check the Team Number and Roll Number.";
+      }
+    }
+</script>
+
+</body>
+</html>
